@@ -3,6 +3,20 @@
 [![codecov](https://codecov.io/gh/computational-cell-analytics/micro-sam/graph/badge.svg?token=7ETPP5CABP)](https://codecov.io/gh/computational-cell-analytics/micro-sam)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7919746.svg)](https://doi.org/10.5281/zenodo.7919746)
 
+# Fine-tuned Segment Anything for CALM
+
+Adapted code from Micro-SAM (Archit et al., 2025) for use in fine-tuning Cafe-au-lait macules. 
+
+Changes:
+1. CALM_sam_finetune.py: Finetune SAM with small amount of CALM images
+2. CALM_predict_all.py: Predict on image dataset using fine-tuned model
+
+Link to micro-sam: "https://github.com/computational-cell-analytics/micro-sam"
+Citation:
+Archit A, Freckmann L, Nair S, Khalid N, Hilt P, Rajashekar V, et al. Segment Anything for Microscopy. Nat Methods. 2025;22(3):579–91.
+
+Original instructions for micro-sam below:
+
 # Segment Anything for Microscopy
 
 <a href="https://github.com/computational-cell-analytics/micro-sam"><img src="https://github.com/computational-cell-analytics/micro-sam/blob/master/doc/logo/logo_and_text.png" width="300" align="right">
