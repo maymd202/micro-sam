@@ -103,15 +103,6 @@ val_loader = sam_training.default_sam_loader(
     sampler=sampler,
 )
 
-# %%
-# Let's check how our samples look from the dataloader
-check_loader(train_loader, 4, plt=True)
-
-# %% [markdown]
-# ### Run the actual model finetuning
-
-# %%
-# All hyperparameters for training.
 n_objects_per_batch = args.objects  # the number of objects per batch that will be sampled
 device = "cuda" if torch.cuda.is_available() else "cpu"  # the device/GPU used for training
 n_epochs = args.epochs # how long we train (in epochs)
@@ -157,10 +148,9 @@ sam_training.train_sam(
 best_checkpoint = os.path.join(root_dir, "combo_models", "checkpoints", checkpoint_name, "best.pt")
 
 
-# %% [markdown]
-# ### Let's run the automatic instance segmentation (AIS)
+#Let's run the automatic instance segmentation (AIS)
 
-# %%
+
 def run_automatic_instance_segmentation(
     image: np.ndarray,
     checkpoint_path: Union[os.PathLike ,str],
@@ -205,7 +195,7 @@ def run_automatic_instance_segmentation(
     return prediction
 
 
-# %%
+
 assert os.path.exists(best_checkpoint), "Please train the model first to run inference on the finetuned model."
 assert train_instance_segmentation is True, "Oops. You didn't opt for finetuning using the decoder-based automatic instance segmentation."
 import SimpleITK as sitk
