@@ -44,7 +44,7 @@ DATA_FOLDER = os.path.join(root_dir, "data/ma+nf1")
 best_checkpoint = os.path.join(root_dir, "combo_models", "checkpoints", checkpoint_name, "best.pt")
 
 
-# %% [markdown]
+
 # ### Let's run the automatic instance segmentation (AIS)
 
 # %%
@@ -97,6 +97,7 @@ assert os.path.exists(best_checkpoint), "Please train the model first to run inf
 #assert train_instance_segmentation is True, "Oops. You didn't opt for finetuning using the decoder-based automatic instance segmentation."
 import SimpleITK as sitk
 
+#compute dice and hausdorff distance between two segmentations
 def dice(seg1, seg2, label=1):
     """Compute the Dice coefficient between two segmentations."""
     overlapfilter = sitk.LabelOverlapMeasuresImageFilter()
@@ -119,6 +120,7 @@ os.makedirs(os.path.join(root_dir, 'all_outputs', checkpoint_name), exist_ok = T
 
 out_df = pd.DataFrame(columns=['Name', 'Dice','Hausdorff'])
 
+#predict on all images and save the results
 for image_path in tqdm(unlabeled_paths):
     core = image_path.split('/')[-1]
     print(core)
