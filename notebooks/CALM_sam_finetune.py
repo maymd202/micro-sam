@@ -27,10 +27,6 @@ import micro_sam.training as sam_training
 from micro_sam.sample_data import fetch_tracking_example_data, fetch_tracking_segmentation_data
 from micro_sam.automatic_segmentation import get_predictor_and_segmenter, automatic_instance_segmentation
 
-# %% [markdown]
-# ### Let's download the dataset
-
-# %%
 # NOTE: Please set 'root_dir' to the desired path, either where your data exists, or where you would like to download the data.
 root_dir = '/data/difrischiamm/seg_sam/micro-sam'  # Overwrite this to point to your desired path.
 
@@ -41,18 +37,10 @@ os.makedirs(DATA_FOLDER, exist_ok=True)
 image_dir = os.path.join(DATA_FOLDER, 'ma+nf1', 'images')#fetch_tracking_example_data(DATA_FOLDER)
 segmentation_dir = os.path.join(DATA_FOLDER, 'ma+nf1', 'masks')#= fetch_tracking_segmentation_data(DATA_FOLDER)
 
-
-# %%
 image_paths = sorted(glob(os.path.join(image_dir, "*")))
 segmentation_paths = sorted(glob(os.path.join(segmentation_dir, "*")))
 
 raw_key, label_key = "*.jpg", "*.png"
-
-
-train_roi = np.s_[:10, :, :]
-val_roi = np.s_[10:, :, :]
-
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", type=int, default=1)
@@ -126,11 +114,9 @@ torch.save(
 # The name of the checkpoint. The checkpoints will be stored in './checkpoints/<checkpoint_name>'
 checkpoint_name = f"2nf1+ma_sam_{model_type}_pred{args.pred_model}_epochs{n_epochs}_objects{n_objects_per_batch}_batch{batch_size}"
 
-# %% [markdown]
+
 # **NOTE**: The user needs to decide whether to finetune the Segment Anything model, or the `µsam`'s "finetuned microscopy models" for their dataset. Here, we finetune on the Segment Anything model for simplicity. For example, if you choose to finetune the model from the light microscopy generalist models, you need to update the `model_type` to `vit_b_lm` and it takes care of initializing the model with the desired weights)
 
-# %%
-# Run training
 sam_training.train_sam(
     name=checkpoint_name,
     save_root=os.path.join(root_dir, "combo_models"),
@@ -143,7 +129,7 @@ sam_training.train_sam(
     device=device,
 )
 
-# %%
+
 # Let's spot our best checkpoint and download it to get started with the annotation tool
 best_checkpoint = os.path.join(root_dir, "combo_models", "checkpoints", checkpoint_name, "best.pt")
 
@@ -222,12 +208,14 @@ os.makedirs(os.path.join(root_dir, 'combined_outputs', checkpoint_name), exist_o
 
 out_df = pd.DataFrame(columns=['Name', 'Dice','Hausdorff'])
 
+#for each image in the dataset, run the automatic instance segmentation and compute the dice and hausdorff distance with the ground truth mask
 for image_path in unlabeled_paths:
     core = image_path.split('/')[-1]
     print(core)
     image = imageio.imread(image_path)
     mask = imageio.imread(os.path.join(root_dir, "data/ma+nf1/test/masks", core.split(".")[0] + ".png"))
 
+    #AIS prediction
     prediction = run_automatic_instance_segmentation(
         image=image,
         checkpoint_path=best_checkpoint,
@@ -236,19 +224,21 @@ for image_path in unlabeled_paths:
     )
     print(f"image shape {image.shape} and prediction shape {prediction.shape}")
     binary_mask = (prediction > 0).astype(np.uint8) * 255
-    #print(mask.max(), binary_mask.max())
+
+    #Calculate the dice and hausdorff distance between the ground truth mask and the predicted mask
     dice_val = dice(sitk.GetImageFromArray(mask), sitk.GetImageFromArray(binary_mask), 255)
     haus_val = hausdorff(sitk.GetImageFromArray(mask), sitk.GetImageFromArray(binary_mask))
 
+    #Add the results to the output DataFrame
     new_add = pd.DataFrame([{
         "Name": core,
         "Dice": dice_val,
         "Hausdorff": haus_val
     }])
 
-    #print(dice_val, haus_val)
+
     out_df = pd.concat([out_df, new_add], ignore_index = True)
-    # Visualize the predictions
+    # Visualize the predictions by plotting the input image and the predicted mask side by side, and save the figure to the output directory
     fig, ax = plt.subplots(1, 2, figsize=(10, 10))
     fig.suptitle(f"Dice:{round(dice_val, 4)} Hausdorff:{round(haus_val, 4)}")
 
@@ -256,7 +246,7 @@ for image_path in unlabeled_paths:
     ax[0].axis("off")
     ax[0].set_title("Input Image")
 
-    #ax[1].imshow(prediction, cmap=get_random_colors(prediction), interpolation="nearest")
+
     ax[1].imshow(binary_mask, cmap='gray', interpolation="nearest")
     ax[1].axis("off")
     ax[1].set_title("Predictions (AIS)")
@@ -292,6 +282,7 @@ train_steps, train_loss = extract_scalar(ea, "train/loss")
 val_steps, val_loss = extract_scalar(ea, "validation/loss")
 _, val_metric = extract_scalar(ea, "validation/metric")  # e.g. IoU or similar
 
+# Plotting the training and validation curves
 plt.figure(figsize=(8, 5))
 plt.plot(train_steps, train_loss, label="train loss")
 plt.xlabel("iteration")
