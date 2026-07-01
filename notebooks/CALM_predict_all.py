@@ -74,7 +74,7 @@ def run_automatic_instance_segmentation(
     # Step 1: Get the 'predictor' and 'segmenter' to perform automatic instance segmentation.
     predictor, segmenter = get_predictor_and_segmenter(
         model_type=model_type,  # choice of the Segment Anything model
-        checkpoint=None, #checkpoint_path,  #! Write NONE if you want to use baseline SAM
+        checkpoint=checkpoint_path,  #! Write NONE if you want to use baseline SAM
         device=device,  # the device to run the model inference.
         is_tiled=(tile_shape is not None),  # whether to run automatic segmentation.
     )
