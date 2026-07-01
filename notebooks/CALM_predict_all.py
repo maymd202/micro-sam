@@ -92,7 +92,6 @@ def run_automatic_instance_segmentation(
     return prediction
 
 
-# %%
 assert os.path.exists(best_checkpoint), "Please train the model first to run inference on the finetuned model."
 #assert train_instance_segmentation is True, "Oops. You didn't opt for finetuning using the decoder-based automatic instance segmentation."
 import SimpleITK as sitk
