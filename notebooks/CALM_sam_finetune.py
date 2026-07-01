@@ -180,8 +180,6 @@ def run_automatic_instance_segmentation(
 
     return prediction
 
-
-
 assert os.path.exists(best_checkpoint), "Please train the model first to run inference on the finetuned model."
 assert train_instance_segmentation is True, "Oops. You didn't opt for finetuning using the decoder-based automatic instance segmentation."
 import SimpleITK as sitk
@@ -201,8 +199,6 @@ def hausdorff(seg1, seg2):
 
 unlabeled_dir = os.path.join(DATA_FOLDER, 'ma+nf1', 'test/images')#fetch_tracking_example_data(DATA_FOLDER)
 unlabeled_paths = sorted(glob(os.path.join(unlabeled_dir, "*")))
-# Let's check the first 5 images. Feel free to comment out the line below to run inference on all images.
-#image_paths = image_paths[:5]
 
 os.makedirs(os.path.join(root_dir, 'combined_outputs', checkpoint_name), exist_ok = True)
 
